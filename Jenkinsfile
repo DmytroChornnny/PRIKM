@@ -1,33 +1,29 @@
 pipeline {
     agent any
-
     stages {
         stage('Start') {
             steps {
-                echo 'Lab_1: nginx/custom'
+                echo 'Lab_2: started by GitHub'
             }
         }
-
-        stage('Build nginx/custom') {
+        stage('Image build') {
             steps {
-                sh 'docker build -t nginx/custom:latest .'
-            }   
-        }
-
-        stage('Test nginx/custom') {
-            steps {
-                echo 'Pass'
+                sh "docker build -t prikm:latest ."
+                sh "docker tag prikm dmytrochornnny/prikm:latest"
+                sh "docker tag prikm dmytrochornnny/prikm:$BUILD_NUMBER"
             }
         }
-
-        stage('Deploy nginx/custom'){
-            steps{
-                sh "docker run -d -p 80:80 nginx/custom:latest"
+        stage('Push to registry') {
+            steps {
+                withDockerRegistry([ credentialsId: "dockerhub_token", url: "" ]) {
+                    sh "docker push dmytrochornnny/prikm:latest"
+                    sh "docker push dmytrochornnny/prikm:$BUILD_NUMBER"
+                }
             }
         }
-        stage('End') {
+        stage('Deploy image') {
             steps {
-                echo 'Ne mozna odnakovi nazvi'
+                sh "docker run -d -p 80:80 dmytrochornnny/prikm"
             }
         }
     }
