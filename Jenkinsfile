@@ -26,7 +26,15 @@ pipeline {
                 }
             }
         }
-
+        stage('Read Config (JSON)') {
+            steps {
+                script {
+                    def jsonText = readFile 'config.json'
+                    def config = readJSON text: jsonText
+                    echo "Project name from config: ${config.project name}"
+                }
+            }
+        }
         stage('Cleanup old containers') {
             steps {
                 sh "docker ps -q --filter ancestor=$IMAGE_NAME | xargs -r docker stop"
