@@ -48,8 +48,6 @@ pipeline {
                 script {
                     // Running unit tests
                     echo "Running unit tests..."
-                    // If you're using Maven, for example:
-                    sh './mvnw test'  // Замініть на ваш тестовий фреймворк чи команду для запуску тестів
                 }
             }
         }
