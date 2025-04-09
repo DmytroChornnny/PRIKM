@@ -5,7 +5,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
+        string(name: 'BRANCH', defaultValue: 'Lab_3', description: 'Git branch to build')
         booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run unit tests before building?')
         choice(name: 'DEPLOY_ENV', choices: ['staging', 'production'], description: 'Environment to deploy')
     }
