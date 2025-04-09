@@ -31,7 +31,7 @@ pipeline {
                 script {
                     def jsonText = readFile 'config.json'
                     def config = readJSON text: jsonText
-                    echo "Project name from config: ${config.project name}"
+                    echo "Nothing: ${config.nothing}"
                 }
             }
         }
