@@ -26,7 +26,7 @@ pipeline {
     stages {
         stage('Start') {
             steps {
-                echo 'Lab_2: Pipeline started by GitHub trigger'
+                echo 'Lab_3: Pipeline started by GitHub trigger'
             }
         }
         stage('Cleanup old containers') {
