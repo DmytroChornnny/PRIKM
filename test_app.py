@@ -8,7 +8,7 @@ class BasicTestCase(unittest.TestCase):
     def test_home(self):
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.decode(), "Hello, CI/CD!")
+        self.assertEqual(response.data.decode(), "Hello, CI/CD! version 2")
 
 if __name__ == '__main__':
     unittest.main()
