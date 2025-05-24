@@ -1,46 +1,53 @@
 pipeline {
     agent any
+
     environment {
-        IMAGE_NAME = "dmytrochornnny/prikm"
+        IMAGE_NAME = "flask-cicd-app"
+        IMAGE_TAG = "latest"
+        CONTAINER_NAME = "flask_cicd_container"
     }
+
     stages {
-        stage('Start') {
+        stage('Checkout') {
             steps {
-                echo 'Lab_2: Pipeline started by GitHub trigger'
+                checkout scm
             }
         }
-        stage('Cleanup old containers') {
+
+        stage('Build Docker Image') {
             steps {
-                sh "docker ps -q --filter ancestor=$IMAGE_NAME | xargs -r docker stop"
-                sh "docker ps -aq --filter ancestor=$IMAGE_NAME | xargs -r docker rm"
-            }
-        }
-        stage('Free port 80') {
-            steps {
-                sh "fuser -k 80/tcp || true"
-            }
-        }
-        stage('Image build') {
-            steps {
-                sh "docker build -t prikm:latest ."
-                sh "docker tag prikm $IMAGE_NAME:latest"
-                sh "docker tag prikm $IMAGE_NAME:$BUILD_NUMBER"
-                sh "docker tag prikm $IMAGE_NAME:stable"
-            }
-        }
-        stage('Push to registry') {
-            steps {
-                withDockerRegistry([ credentialsId: "dockerhub_token", url: "" ]) {
-                    sh "docker push $IMAGE_NAME:latest"
-                    sh "docker push $IMAGE_NAME:$BUILD_NUMBER"
-                    sh "docker push $IMAGE_NAME:stable"
+                script {
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
-        stage('Deploy image') {
+
+        stage('Test') {
             steps {
-                sh "docker run -d -p 80:80 $IMAGE_NAME:latest"
+                script {
+                    docker.image("${IMAGE_NAME}:${IMAGE_TAG}").inside {
+                        sh 'python -m unittest discover -s .'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Якщо контейнер уже запущений, зупинити і видалити
+                    sh """
+                    if [ \$(docker ps -q -f name=${CONTAINER_NAME}) ]; then
+                        docker stop ${CONTAINER_NAME}
+                        docker rm ${CONTAINER_NAME}
+                    fi
+                    """
+
+                    // Запустити новий контейнер
+                    sh "docker run -d --name ${CONTAINER_NAME} -p 5000:5000 ${IMAGE_NAME}:${IMAGE_TAG}"
+                }
             }
         }
     }
 }
+
