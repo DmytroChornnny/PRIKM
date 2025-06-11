@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return "Hello, CI/CD! version 3"
+    return "Hello, CI/CD! version 5"
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
